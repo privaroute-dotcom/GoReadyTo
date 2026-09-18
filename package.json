@@ -1,0 +1,25 @@
+{
+  "name": "workproof-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run web:dev",
+    "web:dev": "npm run dev -w @workproof/web",
+    "api:dev": "npm run start:dev -w @workproof/api",
+    "web:build": "npm run build -w @workproof/web",
+    "api:build": "npm run build -w @workproof/api",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "db:init": "docker compose exec -T postgres psql -U goreadyto -d goreadyto < infrastructure/db/001_init.sql && docker compose exec -T postgres psql -U goreadyto -d goreadyto < infrastructure/db/002_employment.sql && docker compose exec -T postgres psql -U goreadyto -d goreadyto < infrastructure/db/003_seed.sql && docker compose exec -T postgres psql -U goreadyto -d goreadyto < infrastructure/db/004_auth.sql",
+    "start": "npm run dev",
+    "setup": "npm install"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

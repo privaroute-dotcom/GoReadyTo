@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_USER: goreadyto
+      POSTGRES_PASSWORD: goreadyto
+      POSTGRES_DB: goreadyto
+    ports:
+      - "5432:5432"
+    volumes:
+      - goreadyto_pg:/var/lib/postgresql/data
+      - ./infrastructure/db/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+      - ./infrastructure/db/002_employment.sql:/docker-entrypoint-initdb.d/002_employment.sql:ro
+      - ./infrastructure/db/003_seed.sql:/docker-entrypoint-initdb.d/003_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goreadyto -d goreadyto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: goreadyto
+      MINIO_ROOT_PASSWORD: goreadyto-dev-secret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - goreadyto_minio:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 goreadyto goreadyto-dev-secret; do sleep 2; done;
+      mc mb --ignore-existing local/goreadyto-evidence;
+      exit 0;
+      "
+
+volumes:
+  goreadyto_pg:
+  goreadyto_minio:

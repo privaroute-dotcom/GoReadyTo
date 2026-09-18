@@ -1,0 +1,1 @@
+INSERT INTO requirement_sources(country,job_category,title,source_url,authority,requirements) VALUES ('Germany','Welding','Employment and residence information','https://www.make-it-in-germany.com/','Federal Government','{"note":"Country-specific official requirements must be checked before application."}') ON CONFLICT DO NOTHING;
